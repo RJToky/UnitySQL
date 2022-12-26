@@ -1,0 +1,4 @@
+deptno/dname/loc/
+10/Ryuk/Tana/
+20/Joy/Tana/
+30/AntrayBerTyAh/Tana/

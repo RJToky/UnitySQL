@@ -1,0 +1,4 @@
+empno/ename/deptno/
+1/Toky/10/
+2/Ryuk/20/
+3/Joy/30/
