@@ -103,7 +103,7 @@ public class Requester {
             }
             
         } else if (request.contains("exit") || request.contains("quit")) {
-            System.out.println("...");
+            System.out.println("bye");
 
         } else if (request.equals("")) {
             System.out.print("");
