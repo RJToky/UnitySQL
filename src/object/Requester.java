@@ -22,7 +22,7 @@ public class Requester {
             try {
                 treatRequest(req);
             } catch (Exception e) {
-                System.out.println("\n" + e.getMessage() + "\n\n");
+                System.out.println("\n" + e.getMessage() + "\n");
             }
             System.out.println();
         } while (!req.equalsIgnoreCase("exit") && !req.equalsIgnoreCase("quit"));
