@@ -14,10 +14,7 @@ public class Function {
                     return request.split("\s+")[2];
 
                 case "select":
-                    return request.split(" from ")[1].split("\s+")[0];
-
-                case "union":
-                    return request.toLowerCase().split(" union ")[1].split("\s+")[0];
+                    return request.split("from")[1].trim().split("\s+")[0];
 
                 case "desc", "describe":
                     return request.split("\s+")[1];
@@ -134,17 +131,7 @@ public class Function {
         return rep;
     }
 
-    public static boolean isSame(Table tab1, Table tab2) {
-        if(tab1.getColumn().length != tab2.getColumn().length) return false;
-
-        for (int i = 0; i < tab1.getColumn().length; i++) {
-            if(!tab1.getColumn()[i].equalsIgnoreCase(tab2.getColumn()[i])) return false;
-        }
-
-        return true;
-    }
-
-    public static boolean areSameAll(Table[] tables) {
+    public static boolean areSameCol(Table[] tables) {
         for (int i = 0; i < tables.length; i++) {
             try {
                 if (tables[i].getColumn().length != tables[i+1].getColumn().length) return false;

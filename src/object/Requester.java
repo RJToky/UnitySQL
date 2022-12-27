@@ -30,7 +30,7 @@ public class Requester {
     }
 
     public void treatRequest(String request) throws Exception {
-        String req = request.toLowerCase();
+        String req = request.toLowerCase().trim();
         String nomTable;
         Table table;
 
@@ -45,7 +45,7 @@ public class Requester {
 
             }
         } else if (req.contains("desc") || req.contains("describe")) {
-            nomTable = Function.getNomTable(request, "desc");
+            nomTable = Function.getNomTable(req, "desc");
 
             int i = Function.getIndiceTable(nomTable, databaseUsed);
             table = databaseUsed.getTables().get(i).desc();
@@ -69,35 +69,47 @@ public class Requester {
             }
 
         } else if (req.contains("insert into") && req.contains("values")) {
-            nomTable = Function.getNomTable(request, "insert");
+            nomTable = Function.getNomTable(req, "insert");
 
             int i = Function.getIndiceTable(nomTable, databaseUsed);
-            databaseUsed.getTables().get(i).insert(request);
+            databaseUsed.getTables().get(i).insert(req);
 
         } else if (req.contains("select") && req.contains("from")) {
 
             if (req.contains("union")) {
-                table = Table.union(request, databaseUsed);
+                table = Table.union(req, databaseUsed);
+                table.print();
+
+            } else if (req.contains("intersect")) {
+                table = Table.intersect(req, databaseUsed);
+                table.print();
+
+            } else if (req.contains("not in")) {
+                table = Table.difference(req, databaseUsed);
+                table.print();
+
+            } else if (req.contains("product")) {
+                table = Table.product(req, databaseUsed);
                 table.print();
 
             } else if (req.contains("sous")) {
                 table = Table.sousRequest(req, databaseUsed);
                 table.print();
-
+                
             } else {
-                nomTable = Function.getNomTable(request, "select");
+                nomTable = Function.getNomTable(req, "select");
 
                 int i = Function.getIndiceTable(nomTable, databaseUsed);
-                table = databaseUsed.getTables().get(i).selection(request).projection(request);
+                table = databaseUsed.getTables().get(i).selection(req).projection(req);
                 table.print();
 
             }
-            
-        } else if (request.contains("exit") || request.contains("quit")) {
+        } else if (req.contains("exit") || req.contains("quit")) {
             System.out.print("bye");
 
-        } else if (request.equals("")) {
+        } else if (req.equals("")) {
             System.out.print("");
+
         } else {
             throw new Exception("Erreur de syntaxe");
         }

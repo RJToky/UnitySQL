@@ -3,6 +3,7 @@ package object;
 import inc.Function;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Vector;
 
@@ -29,6 +30,70 @@ public class Table {
         this.file = new File("./data/" + database.getName() + "/" + this.name + ".txt");
 
         database.getTables().add(this);
+    }
+
+    public void print() {
+        int len = 0;
+        int[] maxLength = new int[column.length];
+
+        System.out.println();
+        for (int i = 0; i < column.length; i++) {
+            maxLength[i] = column[i].length();
+
+            for (String[] value : values) {
+                if (maxLength[i] < value[i].length()) {
+                    maxLength[i] = value[i].length();
+                }
+            }
+            System.out.print(column[i].toUpperCase());
+            for (int j = 0; j < maxLength[i]-column[i].length(); j++) {
+                System.out.print(" ");
+                len += 1;
+            }
+            System.out.print("   ");
+            len += column[i].length() + 2;
+        }
+        System.out.println();
+
+        for (int i = 0; i < len; i++) {
+            System.out.print("-");
+        }
+        System.out.println();
+
+        for (String[] value : values) {
+            for (int i = 0; i < value.length; i++) {
+                System.out.print(value[i]);
+                for (int j = 0; j < maxLength[i]-value[i].length(); j++) {
+                    System.out.print(" ");
+                }
+                System.out.print("   ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
+    public void getData() throws IOException {
+        this.setName(file.getName().split("\\.")[0]);
+
+        FileReader fr = new FileReader(file);
+        BufferedReader br = new BufferedReader(fr);
+
+        String line = br.readLine();
+        String[] cols = line.split("/");
+        this.setColumn(cols);
+
+        Vector<String[]> values = new Vector<>();
+        String[] temp;
+        while (br.ready()) {
+            line = br.readLine();
+            temp = line.split("/");
+            values.add(temp);
+        }
+        this.setValues(values);
+
+        fr.close();
+        br.close();
     }
 
     public void create() throws Exception {
@@ -98,7 +163,7 @@ public class Table {
         FileWriter fw = new FileWriter(file, true);
         BufferedWriter bw = new BufferedWriter(fw);
 
-        String[] values = request.split(" values ")[1].split("\s+");
+        String[] values = request.split("values")[1].trim().split("\s+");
         String[] temp = new String[column.length];
 
         for (int i = 0; i < column.length; i++) {
@@ -163,15 +228,17 @@ public class Table {
     }
 
     public static Table union(String request, Database databaseUsed) throws Exception {
-        String[] reqs = request.split(" union ");
+        if(databaseUsed == null) throw new Exception("Aucune base de données selectionnée");
+
+        String[] reqs = request.split("union");
 
         Table[] tables = new Table[reqs.length];
         for (int i = 0; i < reqs.length; i++) {
-            tables[i] = databaseUsed.getTable(Function.getNomTable(reqs[i], "select"));
-            tables[i] = tables[i].selection(reqs[i]).projection(reqs[i]);
+            tables[i] = databaseUsed.getTable(Function.getNomTable(reqs[i].trim(), "select"));
+            tables[i] = tables[i].selection(reqs[i].trim()).projection(reqs[i].trim());
         }
 
-        if(Function.areSameAll(tables)) {
+        if(Function.areSameCol(tables)) {
             Table tab = new Table();
             tab.setColumn(tables[0].getColumn());
 
@@ -190,68 +257,87 @@ public class Table {
         }
     }
 
-    public void print() {
-        int len = 0;
-        int[] maxLength = new int[column.length];
+    public static Table intersect(String request, Database databaseUsed) throws Exception {
+        if(databaseUsed == null) throw new Exception("Aucune base de données selectionnée");
 
-        System.out.println();
-        for (int i = 0; i < column.length; i++) {
-            maxLength[i] = column[i].length();
+        String[] reqs = request.split("intersect");
 
-            for (String[] value : values) {
-                if (maxLength[i] < value[i].length()) {
-                    maxLength[i] = value[i].length();
+        Table[] tables = new Table[reqs.length];
+        for (int i = 0; i < reqs.length; i++) {
+            tables[i] = databaseUsed.getTable(Function.getNomTable(reqs[i].trim(), "select"));
+            tables[i] = tables[i].selection(reqs[i].trim()).projection(reqs[i].trim());
+        }
+
+        if(Function.areSameCol(tables)) {
+            Vector<String[]> tempValues;
+            Table tab = tables[0];
+
+            for (int i = 1; i < tables.length; i++) {
+                tempValues = new Vector<>();
+
+                for (int j = 0; j < tab.getValues().size(); j++) {
+                    for (int k = 0; k < tables[i].getValues().size(); k++) {
+                        if(Arrays.equals(tab.getValues().get(j), tables[i].getValues().get(k))) {
+                            tempValues.add(tab.getValues().get(j));
+                        }
+                    }
                 }
+                tempValues = Function.deleteDoublon(tempValues);
+                tab.setValues(tempValues);
             }
-            System.out.print(column[i].toUpperCase());
-            for (int j = 0; j < maxLength[i]-column[i].length(); j++) {
-                System.out.print(" ");
-                len += 1;
-            }
-            System.out.print("   ");
-            len += column[i].length() + 2;
-        }
-        System.out.println();
 
-        for (int i = 0; i < len; i++) {
-            System.out.print("-");
-        }
-        System.out.println();
+            return tab;
 
-        for (String[] value : values) {
-            for (int i = 0; i < value.length; i++) {
-                System.out.print(value[i]);
-                for (int j = 0; j < maxLength[i]-value[i].length(); j++) {
-                    System.out.print(" ");
-                }
-                System.out.print("   ");
-            }
-            System.out.println();
+        } else {
+            throw new Exception("Impossible de faire l'opération");
         }
-        System.out.println();
     }
 
-    public void getData() throws IOException {
-        this.setName(file.getName().split("\\.")[0]);
+    public static Table difference(String request, Database databaseUsed) throws Exception {
+        if(databaseUsed == null) throw new Exception("Aucune base de données selectionnée");
 
-        FileReader fr = new FileReader(file);
-        BufferedReader br = new BufferedReader(fr);
+        String[] reqs = request.split("not in");
 
-        String line = br.readLine();
-        String[] cols = line.split("/");
-        this.setColumn(cols);
-
-        Vector<String[]> values = new Vector<>();
-        String[] temp;
-        while (br.ready()) {
-            line = br.readLine();
-            temp = line.split("/");
-            values.add(temp);
+        Table[] tables = new Table[reqs.length];
+        for (int i = 0; i < reqs.length; i++) {
+            tables[i] = databaseUsed.getTable(Function.getNomTable(reqs[i].trim(), "select"));
+            tables[i] = tables[i].selection(reqs[i].trim()).projection(reqs[i].trim());
         }
-        this.setValues(values);
 
-        fr.close();
-        br.close();
+        if(Function.areSameCol(tables)) {
+            Vector<String[]> tempValues;
+            Table tab = tables[0];
+
+            boolean mitovy;
+            for (int i = 1; i < tables.length; i++) {
+                tempValues = new Vector<>();
+
+                for (int j = 0; j < tab.getValues().size(); j++) {
+                    mitovy = false;
+
+                    for (int k = 0; k < tables[i].getValues().size(); k++) {
+                        if (Arrays.equals(tab.getValues().get(j), tables[i].getValues().get(k))) {
+                            mitovy = true;
+                            break;
+                        }
+                    }
+                    if(!mitovy) {
+                        tempValues.add(tab.getValues().get(j));
+                    }
+                }
+                tempValues = Function.deleteDoublon(tempValues);
+                tab.setValues(tempValues);
+            }
+
+            return tab;
+
+        } else {
+            throw new Exception("Impossible de faire l'opération");
+        }
+    }
+
+    public static Table product(String request, Database databaseUsed) {
+        return new Table();
     }
 
     public static Table sousRequest(String request, Database databaseUsed) throws Exception {
