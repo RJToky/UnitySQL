@@ -121,8 +121,9 @@ public class Table {
     }
 
     public Table selection(String request) throws Exception {
-        String key = Function.getKeyOrValue(request, "key"), value = Function.getKeyOrValue(request, "value");
+        if(!request.contains("where")) return this;
 
+        String key = Function.getKeyOrValue(request, "key"), value = Function.getKeyOrValue(request, "value");
         Table tab = new Table();
         tab.setColumn(column);
 
@@ -138,7 +139,6 @@ public class Table {
     }
 
     public Table projection(String request) throws Exception {
-
         String[] cols = Function.getNomColonne(request, "select");
 
         Table tab = new Table();
@@ -162,49 +162,32 @@ public class Table {
         return tab;
     }
 
-    public Table union(String request, Database databaseUsed) throws Exception {
-        String nomTable2 = Function.getNomTable(request, "union");
-        Table table2 = databaseUsed.getTable(nomTable2);
+    public static Table union(String request, Database databaseUsed) throws Exception {
+        String[] reqs = request.split(" union ");
 
-        Table tab = new Table();
-        tab.setColumn(this.getColumn());
+        Table[] tables = new Table[reqs.length];
+        for (int i = 0; i < reqs.length; i++) {
+            tables[i] = databaseUsed.getTable(Function.getNomTable(reqs[i], "select"));
+            tables[i] = tables[i].selection(reqs[i]).projection(reqs[i]);
+        }
 
-        Vector<String[]> tempValues = new Vector<>();
-        tempValues.addAll(this.getValues());
-        tempValues.addAll(table2.getValues());
+        if(Function.areSameAll(tables)) {
+            Table tab = new Table();
+            tab.setColumn(tables[0].getColumn());
 
-        Vector<String[]> finalValues = Table.deleteDoublon(tempValues);
-        tab.setValues(finalValues);
-
-        return tab;
-    }
-
-    private static Vector<String[]> deleteDoublon(Vector<String[]> values) {
-        Vector<String[]> rep = new Vector<>();
-        Vector<String> hist = new Vector<>();
-
-        boolean exist = false;
-        for (String[] value : values) {
-            for (String h : hist) {
-                if (h.equals(Table.concatArray(value))) {
-                    exist = true;
-                }
+            Vector<String[]> tempValues = new Vector<>();
+            for (Table table : tables) {
+                tempValues.addAll(table.getValues());
             }
 
-            if (!exist) rep.add(value);
-            hist.add(Table.concatArray(value));
-            exist = false;
-        }
+            Vector<String[]> finalValues = Function.deleteDoublon(tempValues);
+            tab.setValues(finalValues);
 
-        return rep;
-    }
+            return tab;
 
-    private static String concatArray(String[] array) {
-        StringBuilder builder = new StringBuilder();
-        for (String str : array) {
-            builder.append(str);
+        } else {
+            throw new Exception("Impossible de faire l'opération");
         }
-        return builder.toString();
     }
 
     public void print() {
@@ -271,7 +254,7 @@ public class Table {
         br.close();
     }
 
-    public static Table sousRequest(String request) throws Exception {
+    public static Table sousRequest(String request, Database databaseUsed) throws Exception {
         return new Table();
     }
 

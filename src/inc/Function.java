@@ -3,6 +3,8 @@ package inc;
 import object.Database;
 import object.Table;
 
+import java.util.Vector;
+
 public class Function {
 
     public static String getNomTable(String request, String refer) throws Exception {
@@ -102,6 +104,60 @@ public class Function {
         }
 
         return null;
+    }
+
+    public static String concatArray(String[] array) {
+        StringBuilder builder = new StringBuilder();
+        for (String str : array) {
+            builder.append(str);
+        }
+        return builder.toString();
+    }
+
+    public static Vector<String[]> deleteDoublon(Vector<String[]> values) {
+        Vector<String[]> rep = new Vector<>();
+        Vector<String> hist = new Vector<>();
+
+        boolean exist = false;
+        for (String[] value : values) {
+            for (String h : hist) {
+                if (h.equals(Function.concatArray(value))) {
+                    exist = true;
+                }
+            }
+
+            if (!exist) rep.add(value);
+            hist.add(Function.concatArray(value));
+            exist = false;
+        }
+
+        return rep;
+    }
+
+    public static boolean isSame(Table tab1, Table tab2) {
+        if(tab1.getColumn().length != tab2.getColumn().length) return false;
+
+        for (int i = 0; i < tab1.getColumn().length; i++) {
+            if(!tab1.getColumn()[i].equalsIgnoreCase(tab2.getColumn()[i])) return false;
+        }
+
+        return true;
+    }
+
+    public static boolean areSameAll(Table[] tables) {
+        for (int i = 0; i < tables.length; i++) {
+            try {
+                if (tables[i].getColumn().length != tables[i+1].getColumn().length) return false;
+
+                for (int j = 0; j < tables[i].getColumn().length; j++) {
+                    if(!tables[i].getColumn()[j].equalsIgnoreCase(tables[i+1].getColumn()[j])) return false;
+
+                }
+            } catch (Exception e) {
+                break;
+            }
+        }
+        return true;
     }
 
 }

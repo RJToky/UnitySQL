@@ -22,7 +22,8 @@ public class Requester {
             try {
                 treatRequest(req);
             } catch (Exception e) {
-                System.out.println("\n" + e.getMessage() + "\n");
+                e.printStackTrace();
+//                System.out.println("\n" + e.getMessage() + "\n");
             }
             System.out.println();
         } while (!req.equalsIgnoreCase("exit") && !req.equalsIgnoreCase("quit"));
@@ -75,29 +76,19 @@ public class Requester {
 
         } else if (req.contains("select") && req.contains("from")) {
 
-            if(req.contains("where")) {
-                nomTable = Function.getNomTable(request, "select");
-
-                int i = Function.getIndiceTable(nomTable, databaseUsed);
-                table = databaseUsed.getTables().get(i).selection(request).projection(request);
-                table.print();
-
-            } else if (req.contains("union")) {
-                nomTable = Function.getNomTable(request, "select");
-
-                int i = Function.getIndiceTable(nomTable, databaseUsed);
-                table = databaseUsed.getTables().get(i).union(request, databaseUsed);
+            if (req.contains("union")) {
+                table = Table.union(request, databaseUsed);
                 table.print();
 
             } else if (req.contains("sous")) {
-                table = Table.sousRequest(req);
+                table = Table.sousRequest(req, databaseUsed);
                 table.print();
 
             } else {
                 nomTable = Function.getNomTable(request, "select");
 
                 int i = Function.getIndiceTable(nomTable, databaseUsed);
-                table = databaseUsed.getTables().get(i).projection(request);
+                table = databaseUsed.getTables().get(i).selection(request).projection(request);
                 table.print();
 
             }
