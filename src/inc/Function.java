@@ -3,6 +3,7 @@ package inc;
 import object.Database;
 import object.Table;
 
+import java.util.Arrays;
 import java.util.Vector;
 
 public class Function {
@@ -145,6 +146,36 @@ public class Function {
             }
         }
         return true;
+    }
+
+    public static String[] getProduitColonne(Table tab1, Table tab2) {
+        String[] cols = new String[tab1.getColumn().length + tab2.getColumn().length];
+        int i = 0;
+        for (int j = 0; j < tab1.getColumn().length; j++, i++) cols[i] = tab1.getColumn()[j];
+        for (int j = 0; j < tab2.getColumn().length; j++, i++) cols[i] = tab2.getColumn()[j];
+
+        return cols;
+    }
+
+    public static Vector<String[]> getProduitValue(Table tab1, Table tab2) {
+        Vector<String[]> rep = new Vector<>();
+
+        int size = tab1.getColumn().length + tab2.getColumn().length;
+
+        String[] temp;
+        for (int i = 0; i < tab2.getValues().size(); i++) {
+            for (int j = 0; j < tab1.getValues().size(); j++) {
+                temp = new String[size];
+                int k = 0;
+
+                for (int l = 0; l < tab1.getValues().get(j).length; l++, k++) temp[k] = tab1.getValues().get(j)[l];
+                for (int l = 0; l < tab2.getValues().get(i).length; l++, k++) temp[k] = tab2.getValues().get(i)[l];
+
+                rep.add(temp);
+            }
+        }
+
+        return rep;
     }
 
 }

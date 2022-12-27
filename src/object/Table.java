@@ -70,7 +70,7 @@ public class Table {
             }
             System.out.println();
         }
-        System.out.println();
+        System.out.println("(" + values.size() + " lignes)");
     }
 
     public void getData() throws IOException {
@@ -336,8 +336,33 @@ public class Table {
         }
     }
 
-    public static Table product(String request, Database databaseUsed) {
-        return new Table();
+    public static Table product(String request, Database databaseUsed) throws Exception {
+        if(databaseUsed == null) throw new Exception("Aucune base de données selectionnée");
+
+        String[] reqs = request.split("product");
+
+        Table[] tables = new Table[reqs.length];
+        for (int i = 0; i < reqs.length; i++) {
+            tables[i] = databaseUsed.getTable(Function.getNomTable(reqs[i].trim(), "select"));
+            tables[i] = tables[i].selection(reqs[i].trim()).projection(reqs[i].trim());
+        }
+
+        String[] cols;
+        Vector<String[]> tempValues;
+        Table tab = tables[0];
+
+        for (int i = 0; i < tables.length; i++) {
+            try {
+                tempValues = Function.getProduitValue(tab, tables[i + 1]);
+                tab.setValues(tempValues);
+
+                cols = Function.getProduitColonne(tab, tables[i + 1]);
+                tab.setColumn(cols);
+
+            } catch (Exception ignored) { }
+        }
+
+        return tab;
     }
 
     public static Table sousRequest(String request, Database databaseUsed) throws Exception {
