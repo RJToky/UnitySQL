@@ -70,7 +70,7 @@ public class Table {
             }
             System.out.println();
         }
-        System.out.println("(" + values.size() + " lignes)");
+        System.out.println("(" + values.size() + ((values.size() <= 1) ? " ligne)" : " lignes)"));
     }
 
     public void getData() throws IOException {
@@ -227,16 +227,32 @@ public class Table {
         return tab;
     }
 
+    public Table projection(String[] cols) throws Exception {
+        Table tab = new Table();
+
+        tab.setColumn(cols);
+        if(cols[0].equalsIgnoreCase("*")) {
+            tab.setColumn(column);
+        }
+
+        Vector<String[]> tempVal = new Vector<>();
+        String[] temp;
+        for (String[] value : values) {
+            temp = new String[tab.getColumn().length];
+            for (int j = 0; j < tab.getColumn().length; j++) {
+                temp[j] = value[Function.getIndiceColonne(this, tab.getColumn()[j])];
+            }
+            tempVal.add(temp);
+        }
+        tab.setValues(tempVal);
+
+        return tab;
+    }
+
     public static Table union(String request, Database databaseUsed) throws Exception {
         if(databaseUsed == null) throw new Exception("Aucune base de données selectionnée");
 
-        String[] reqs = request.split("union");
-
-        Table[] tables = new Table[reqs.length];
-        for (int i = 0; i < reqs.length; i++) {
-            tables[i] = databaseUsed.getTable(Function.getNomTable(reqs[i].trim(), "select"));
-            tables[i] = tables[i].selection(reqs[i].trim()).projection(reqs[i].trim());
-        }
+        Table[] tables = Function.getArrayTableByRequest(request, databaseUsed, "union");
 
         if(Function.areSameCol(tables)) {
             Table tab = new Table();
@@ -260,13 +276,7 @@ public class Table {
     public static Table intersect(String request, Database databaseUsed) throws Exception {
         if(databaseUsed == null) throw new Exception("Aucune base de données selectionnée");
 
-        String[] reqs = request.split("intersect");
-
-        Table[] tables = new Table[reqs.length];
-        for (int i = 0; i < reqs.length; i++) {
-            tables[i] = databaseUsed.getTable(Function.getNomTable(reqs[i].trim(), "select"));
-            tables[i] = tables[i].selection(reqs[i].trim()).projection(reqs[i].trim());
-        }
+        Table[] tables = Function.getArrayTableByRequest(request, databaseUsed, "intersect");
 
         if(Function.areSameCol(tables)) {
             Vector<String[]> tempValues;
@@ -296,32 +306,26 @@ public class Table {
     public static Table difference(String request, Database databaseUsed) throws Exception {
         if(databaseUsed == null) throw new Exception("Aucune base de données selectionnée");
 
-        String[] reqs = request.split("not in");
-
-        Table[] tables = new Table[reqs.length];
-        for (int i = 0; i < reqs.length; i++) {
-            tables[i] = databaseUsed.getTable(Function.getNomTable(reqs[i].trim(), "select"));
-            tables[i] = tables[i].selection(reqs[i].trim()).projection(reqs[i].trim());
-        }
+        Table[] tables = Function.getArrayTableByRequest(request, databaseUsed, "not in");
 
         if(Function.areSameCol(tables)) {
             Vector<String[]> tempValues;
             Table tab = tables[0];
 
-            boolean mitovy;
+            boolean match;
             for (int i = 1; i < tables.length; i++) {
                 tempValues = new Vector<>();
 
                 for (int j = 0; j < tab.getValues().size(); j++) {
-                    mitovy = false;
+                    match = false;
 
                     for (int k = 0; k < tables[i].getValues().size(); k++) {
                         if (Arrays.equals(tab.getValues().get(j), tables[i].getValues().get(k))) {
-                            mitovy = true;
+                            match = true;
                             break;
                         }
                     }
-                    if(!mitovy) {
+                    if(!match) {
                         tempValues.add(tab.getValues().get(j));
                     }
                 }
@@ -339,33 +343,35 @@ public class Table {
     public static Table product(String request, Database databaseUsed) throws Exception {
         if(databaseUsed == null) throw new Exception("Aucune base de données selectionnée");
 
-        String[] reqs = request.split("product");
+        Table[] tables = Function.getArrayTableByRequest(request, databaseUsed, "product");
 
-        Table[] tables = new Table[reqs.length];
-        for (int i = 0; i < reqs.length; i++) {
-            tables[i] = databaseUsed.getTable(Function.getNomTable(reqs[i].trim(), "select"));
-            tables[i] = tables[i].selection(reqs[i].trim()).projection(reqs[i].trim());
-        }
+        return Function.concatArrayTable(tables);
+    }
 
-        String[] cols;
-        Vector<String[]> tempValues;
-        Table tab = tables[0];
+    public static Table join(String request, Database databaseUsed, String type) throws Exception {
+        if(databaseUsed == null) throw new Exception("Aucune base de données selectionnée");
 
-        for (int i = 0; i < tables.length; i++) {
+        Table tab;
+
+        if(request.contains("natural join") && type.equals("natural join")) {
+            Table[] tables = Function.getArrayTableByRequest(request, databaseUsed, type);
+
+            tab = Function.concatArrayTable(tables);
             try {
-                tempValues = Function.getProduitValue(tab, tables[i + 1]);
-                tab.setValues(tempValues);
-
-                cols = Function.getProduitColonne(tab, tables[i + 1]);
-                tab.setColumn(cols);
+                Function.removeNotMatch(tab);
 
             } catch (Exception ignored) { }
+
+        } else {
+            throw new Exception("Erreur de syntaxe");
         }
 
         return tab;
     }
 
-    public static Table sousRequest(String request, Database databaseUsed) throws Exception {
+    public static Table sous(String request, Database databaseUsed) throws Exception {
+        if(databaseUsed == null) throw new Exception("Aucune base de données selectionnée");
+
         return new Table();
     }
 

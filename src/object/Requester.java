@@ -92,8 +92,12 @@ public class Requester {
                 table = Table.product(req, databaseUsed);
                 table.print();
 
+            } else if (req.contains("join")) {
+                table = Table.join(req, databaseUsed, "natural join");
+                table.print();
+
             } else if (req.contains("sous")) {
-                table = Table.sousRequest(req, databaseUsed);
+                table = Table.sous(req, databaseUsed);
                 table.print();
                 
             } else {
@@ -114,6 +118,5 @@ public class Requester {
             throw new Exception("Erreur de syntaxe");
         }
     }
-
 
 }

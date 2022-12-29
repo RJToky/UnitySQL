@@ -3,7 +3,6 @@ package inc;
 import object.Database;
 import object.Table;
 
-import java.util.Arrays;
 import java.util.Vector;
 
 public class Function {
@@ -79,9 +78,9 @@ public class Function {
         throw new Exception("Colonne inexistante");
     }
 
-    public static String getKeyOrValue(String req, String alaina) {
+    public static String getKeyOrValue(String request, String toGet) {
         String[] rep = new String[2];
-        String[] str = req.toLowerCase().split("where")[1].split("=");
+        String[] str = request.toLowerCase().split("where")[1].split("=");
 
         String[] temps;
         int a = 0;
@@ -95,13 +94,23 @@ public class Function {
             }
         }
 
-        if(alaina.equals("key")) {
+        if(toGet.equals("key")) {
             return rep[0];
-        } else if (alaina.equals("value")) {
+        } else if (toGet.equals("value")) {
             return rep[1];
         }
-
         return null;
+    }
+
+    public static Table[] getArrayTableByRequest(String request, Database databaseUsed, String separator) throws Exception {
+        String[] reqs = request.split(separator);
+
+        Table[] tables = new Table[reqs.length];
+        for (int i = 0; i < reqs.length; i++) {
+            tables[i] = databaseUsed.getTable(Function.getNomTable(reqs[i].trim(), "select"));
+            tables[i] = tables[i].selection(reqs[i].trim()).projection(reqs[i].trim());
+        }
+        return tables;
     }
 
     public static String concatArray(String[] array) {
@@ -128,7 +137,6 @@ public class Function {
             hist.add(Function.concatArray(value));
             exist = false;
         }
-
         return rep;
     }
 
@@ -148,7 +156,7 @@ public class Function {
         return true;
     }
 
-    public static String[] getProduitColonne(Table tab1, Table tab2) {
+    public static String[] concatColonne(Table tab1, Table tab2) {
         String[] cols = new String[tab1.getColumn().length + tab2.getColumn().length];
         int i = 0;
         for (int j = 0; j < tab1.getColumn().length; j++, i++) cols[i] = tab1.getColumn()[j];
@@ -157,7 +165,7 @@ public class Function {
         return cols;
     }
 
-    public static Vector<String[]> getProduitValue(Table tab1, Table tab2) {
+    public static Vector<String[]> produitCartesien(Table tab1, Table tab2) {
         Vector<String[]> rep = new Vector<>();
 
         int size = tab1.getColumn().length + tab2.getColumn().length;
@@ -174,8 +182,76 @@ public class Function {
                 rep.add(temp);
             }
         }
-
         return rep;
+    }
+
+    public static Table concatArrayTable(Table[] tables) {
+        String[] cols;
+        Vector<String[]> tempValues;
+        Table tab = tables[0];
+
+        for (int i = 0; i < tables.length; i++) {
+            try {
+                tempValues = Function.produitCartesien(tab, tables[i + 1]);
+                tab.setValues(tempValues);
+
+                cols = Function.concatColonne(tab, tables[i + 1]);
+                tab.setColumn(cols);
+
+            } catch (Exception ignored) { }
+        }
+
+        return tab;
+    }
+
+    public static String[] getColonneCommune(Table table) throws Exception {
+        String[] colTable = table.getColumn();
+
+        Vector<String> temp = new Vector<>();
+        for (int i = 0; i < colTable.length; i++) {
+            for (int j = i; j < colTable.length; j++) {
+                if(colTable[i].equals(colTable[j]) && i != j) {
+                    temp.add(colTable[i]);
+                }
+            }
+        }
+
+        if(temp.size() == 0) throw new Exception("Aucune colonne commune");
+
+        String[] colonneCommune = new String[temp.size()];
+        for (int i = 0; i < colonneCommune.length; i++) {
+            colonneCommune[i] = temp.get(i);
+        }
+        return colonneCommune;
+    }
+
+    public static void removeNotMatch(Table table) throws Exception {
+        String[] colonneCommune = Function.getColonneCommune(table);
+
+        Table temp = new Table();
+        temp.setColumn(table.getColumn());
+        temp.setValues(table.getValues());
+
+        for (String colComm : colonneCommune) {
+            Vector<String[]> values = new Vector<>();
+
+            for (int j = 0; j < temp.getValues().size(); j++) {
+                String[] val = new String[2];
+
+                for (int k = 0, l = 0; k < temp.getValues().get(j).length; k++) {
+                    if (temp.getColumn()[k].equals(colComm)) {
+                        val[l] = temp.getValues().get(j)[k];
+                        l++;
+                    }
+                }
+                if (val[0].equals(val[1])) {
+                    values.add(temp.getValues().get(j));
+                }
+            }
+            temp.setValues(values);
+        }
+
+        table.setValues(temp.getValues());
     }
 
 }
