@@ -3,6 +3,7 @@ package inc;
 import object.Database;
 import object.Table;
 
+import java.util.Arrays;
 import java.util.Vector;
 
 public class Function {
@@ -251,7 +252,27 @@ public class Function {
             temp.setValues(values);
         }
 
-        table.setValues(temp.getValues());
-    }
+        Vector<String> cols = new Vector<>(Arrays.asList(colonneCommune));
 
+        for (int i = 0; i < temp.getColumn().length; i++) {
+            boolean match = false;
+            for (String colCom : colonneCommune) {
+                if (temp.getColumn()[i].equals(colCom)) {
+                    match = true;
+                    break;
+                }
+            }
+            if(!match) cols.add(temp.getColumn()[i]);
+        }
+
+        String[] newCol = new String[cols.size()];
+        for (int i = 0; i < newCol.length; i++) {
+            newCol[i] = cols.get(i);
+        }
+        temp = temp.projection(newCol);
+
+        table.setColumn(temp.getColumn());
+        table.setValues(temp.getValues());
+
+    }
 }
