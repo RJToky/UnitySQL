@@ -206,25 +206,7 @@ public class Table {
     public Table projection(String request) throws Exception {
         String[] cols = Function.getNomColonne(request, "select");
 
-        Table tab = new Table();
-
-        tab.setColumn(cols);
-        if(cols[0].equalsIgnoreCase("*")) {
-            tab.setColumn(column);
-        }
-
-        Vector<String[]> tempVal = new Vector<>();
-        String[] temp;
-        for (String[] value : values) {
-            temp = new String[tab.getColumn().length];
-            for (int j = 0; j < tab.getColumn().length; j++) {
-                temp[j] = value[Function.getIndiceColonne(this, tab.getColumn()[j])];
-            }
-            tempVal.add(temp);
-        }
-        tab.setValues(tempVal);
-
-        return tab;
+        return projection(cols);
     }
 
     public Table projection(String[] cols) throws Exception {

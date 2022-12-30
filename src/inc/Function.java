@@ -19,10 +19,9 @@ public class Function {
 
                 case "desc", "describe":
                     return request.split("\s+")[1];
-
             }
         } catch (Exception e) {
-            throw new Exception("Erreur de syntaxe");
+            if(request.split("\s+").length == 1) return request;
         }
         throw new Exception("Erreur de syntaxe");
     }
@@ -109,7 +108,9 @@ public class Function {
         Table[] tables = new Table[reqs.length];
         for (int i = 0; i < reqs.length; i++) {
             tables[i] = databaseUsed.getTable(Function.getNomTable(reqs[i].trim(), "select"));
-            tables[i] = tables[i].selection(reqs[i].trim()).projection(reqs[i].trim());
+            try {
+                tables[i] = tables[i].selection(reqs[i].trim()).projection(reqs[i].trim());
+            } catch (Exception ignored) { }
         }
         return tables;
     }
