@@ -327,7 +327,10 @@ public class Table {
 
         Table[] tables = Function.getArrayTableByRequest(request, databaseUsed, "product");
 
-        return Function.concatArrayTable(tables);
+        Table tab = Function.concatArrayTable(tables);
+        tab = tab.projection(Function.getNomColonne(request, "select"));
+
+        return tab;
     }
 
     public static Table join(String request, Database databaseUsed, String type) throws Exception {
@@ -343,6 +346,7 @@ public class Table {
                 Function.removeNotMatch(tab);
 
             } catch (Exception ignored) { }
+            tab = tab.projection(Function.getNomColonne(request, "select"));
 
         } else {
             throw new Exception("Erreur de syntaxe");
