@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="./assets/bulma/bulma.min.css" />
     <link rel="stylesheet" href="./assets/bulma/bulma-helpers.min.css" />
     <link rel="stylesheet" href="./assets/css/style.css" />
+    <script src="./assets/bulma/bulma.js" defer></script>
+    <script src="./assets/js/script.js" defer></script>
     <title>UnitySQL</title>
   </head>
   <body>
@@ -49,7 +51,12 @@
                 <td>
                   <div class="buttons">
                     <a href="./table.jsp?table=<% out.print(tab.getValues().get(i)[1]); %>&&database=<% out.println(baseName); %>" class="button is-small is-link is-light">Voir</a>
-                    <a href="#" class="button is-small is-danger is-light">
+                    <a
+                      href="./inc/deleteTable.jsp"
+                      class="js-modal-trigger button is-small is-danger is-light"
+                      data-target="suppression"
+                      id="table=<% out.print(tab.getValues().get(i)[1]); %>&&database=<% out.println(baseName); %>"
+                    >
                       Supprimer
                     </a>
                   </div>
@@ -66,7 +73,7 @@
     <footer class="footer">
       <div class="content has-text-centered">
         <p>
-          <strong>UnitySQL</strong> by <a href="">Toky RAKOTOARIVONY</a>
+          <strong>UnitySQL</strong> by <a href="https://github.com/RJToky">Toky RAKOTOARIVONY</a>
         </p>
         <p>v1.0.0</p>
         <p>
@@ -74,5 +81,19 @@
         </p>
       </div>
     </footer>
+
+    <div id="suppression" class="modal">
+      <div class="modal-background"></div>
+      <div class="modal-content">
+        <div class="box">
+          <p class="content">Voulez-vous vraiment supprimer?</p>
+          <div class="buttons">
+            <a href="#" class="button is-danger is-light" id="supprimer">Supprimer</a>
+            <a href="#" class="button is-light cancel">Annuler</a>
+          </div>
+        </div>
+      </div>
+      <button class="modal-close is-large" aria-label="close"></button>
+    </div>
   </body>
 </html>

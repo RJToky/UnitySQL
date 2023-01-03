@@ -103,4 +103,19 @@ public class Controller {
 
         return tab;
     }
+
+    public static void deleteDatabase(String baseName) {
+        File file = new File("./data/" + baseName);
+
+        File[] listFiles = file.listFiles();
+        for (int i = 0; i < Objects.requireNonNull(listFiles).length; i++) {
+            listFiles[i].delete();
+        }
+        file.delete();
+    }
+
+    public static void deleteTable(String tabName, String baseName) {
+        File file = new File("./data/" + baseName + "/" + tabName + ".txt");
+        file.delete();
+    }
 }
