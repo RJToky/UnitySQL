@@ -1,0 +1,13 @@
+main {
+  min-height: calc(90vh - 3.25rem);
+}
+
+@media screen and (max-width: 1023px) {
+  #title {
+    flex-direction: column;
+  }
+
+  main {
+    padding: 0.5rem 0.75rem;
+  }
+}
