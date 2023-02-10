@@ -22,8 +22,8 @@ public class Requester {
             try {
                 treatRequest(req);
             } catch (Exception e) {
-                e.printStackTrace();
-//                System.out.println("\n" + e.getMessage() + "\n");
+//                e.printStackTrace();
+                System.out.println("\n" + e.getMessage() + "\n");
             }
             System.out.println();
         } while (!req.equalsIgnoreCase("exit") && !req.equalsIgnoreCase("quit"));
