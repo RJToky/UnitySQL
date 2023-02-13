@@ -1,7 +1,7 @@
-<%@ page import="inc.Controller, object.Table" %>
+<%@ page import="inc.Helper, object.Table" %>
 <%
   String baseName = request.getParameter("database");
-  Table tab = Controller.listTable(baseName);
+  Table tab = Helper.listTable(baseName);
 %>
 <!DOCTYPE html>
 <html lang="en">

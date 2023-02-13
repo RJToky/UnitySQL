@@ -1,3 +1,0 @@
-idequipe/nomequipe/
-EQUIPE00001/E1/
-EQUIPE00002/EA/

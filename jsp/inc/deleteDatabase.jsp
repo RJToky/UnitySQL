@@ -1,6 +1,6 @@
-<%@ page import="inc.Controller" %>
+<%@ page import="inc.Helper" %>
 <%
     String baseName = request.getParameter("database");
-    Controller.deleteDatabase(baseName);
+    Helper.deleteDatabase(baseName);
     response.sendRedirect("../index.jsp");
 %>

@@ -1,8 +1,8 @@
-<%@ page import="inc.Controller, object.Table" %>
+<%@ page import="inc.Helper, object.Table" %>
 <%
   String tabName = request.getParameter("table");
   String baseName = request.getParameter("database");
-  Table tab = Controller.selectAll(tabName, baseName);
+  Table tab = Helper.selectAll(tabName, baseName);
 %>
 <!DOCTYPE html>
 <html lang="en">

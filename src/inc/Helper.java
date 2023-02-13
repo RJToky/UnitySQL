@@ -6,7 +6,7 @@ import java.io.*;
 import java.util.Objects;
 import java.util.Vector;
 
-public class Controller {
+public class Helper {
 
     public static Table listDatabase() {
         Table tab = new Table();
@@ -48,7 +48,7 @@ public class Controller {
 
             temp[0] = String.valueOf(i+1);
             temp[1] = listFiles[i].getName().split("\\.")[0];
-            temp[2] = Controller.ArrayToString(Controller.getChamps(temp[1], baseName));
+            temp[2] = Helper.ArrayToString(Helper.getChamps(temp[1], baseName));
             tempVal.add(temp);
         }
         tab.setValues(tempVal);

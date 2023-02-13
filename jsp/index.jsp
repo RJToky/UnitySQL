@@ -1,5 +1,5 @@
-<%@ page import="inc.Controller, object.Table" %>
-<% Table tab = Controller.listDatabase(); %>
+<%@ page import="inc.Helper, object.Table" %>
+<% Table tab = Helper.listDatabase(); %>
 <!DOCTYPE html>
 <html lang="en">
   <head>
