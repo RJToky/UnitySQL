@@ -59,7 +59,7 @@ public class Requester {
                 new Table(req, databaseUsed).create();
 
             }
-        } else if (req.contains("use database")) {
+        } else if (req.contains("use")) {
             databaseUsed = new Database(req);
             try {
                 databaseUsed.use();

@@ -1,0 +1,11 @@
+-Utiliser bdd: use database nom_database
+-Creer bdd: create database nom_database
+-Creer table: create table nom_table with col1 col2 col3 ...
+-Inserer donnees: insert into nom_table values val1 val2 val3 ...
+-Projection: select col1 col2 from nom_table
+-Selection: select * from nom_table where col1 = val1
+-Union: select * from nom_table1 union nom_table2
+-Intersect: select * from nom_table1 intersect nom_table2
+-Not in: select * from nom_table1 not in nom_table2
+-Produit cartesien: select * from nom_table1 product nom_table2
+-Natural join: select * from nom_table1 natural join nom_table2
